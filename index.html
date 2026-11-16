@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delta Key Bypasser</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 30px 25px;
+    max-width: 420px; width: 100%;
+    text-align: center;
+    color: #fff;
+  }
+  h1 { font-size: 1.6rem; margin-bottom: 10px; }
+  p { font-size: 0.9rem; color: #ccc; margin-bottom: 20px; }
+  input {
+    width: 100%; padding: 14px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.3); color: #fff;
+    font-size: 0.9rem; outline: none; margin-bottom: 15px;
+  }
+  input::placeholder { color: #888; }
+  button {
+    width: 100%; padding: 14px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: 0.2s;
+  }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .result {
+    margin-top: 20px; padding: 15px; border-radius: 12px;
+    background: rgba(0,0,0,0.3); font-size: 0.9rem;
+    word-break: break-all; display: none;
+  }
+  .key {
+    display: block; margin-top: 8px; padding: 12px;
+    background: rgba(0, 255, 100, 0.1); border: 1px solid rgba(0,255,100,0.4);
+    border-radius: 10px; font-family: monospace; font-size: 1rem;
+    color: #00ff88; user-select: all;
+  }
+  .err { color: #ff6b6b; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🔑 Delta Key Bypasser</h1>
+  <p>auth.platorelay.com havolangizni tashlang — kalitni olib beraman</p>
+  <input id="link" type="text" placeholder="https://auth.platorelay.com/a?d=...">
+  <button id="btn" onclick="bypass()">Bypass qilish</button>
+  <div id="result" class="result"></div>
+</div>
+
+<script>
+async function bypass() {
+  const link = document.getElementById('link').value.trim();
+  const btn = document.getElementById('btn');
+  const res = document.getElementById('result');
+
+  if (!link.includes('platorelay.com') && !link.includes('platoboost')) {
+    res.style.display = 'block';
+    res.innerHTML = '<span class="err">❌ Faqat auth.platorelay.com havolalari qabul qilinadi</span>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Ishlanmoqda...';
+  res.style.display = 'block';
+  res.innerHTML = '<span style="color:#aaa">Kuting, kalit olinmoqda (10-15 soniya)...</span>';
+
+  try {
+    // izen.lol (Zen Bypass) API'siga so'rov
+    const r = await fetch('https://izen.lol/api/bypass', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: link })
+    });
+
+    const data = await r.json();
+
+    if (data.key || data.result || data.url) {
+      const key = data.key || data.result || data.url;
+      res.innerHTML = '✅ <b>Kalit tayyor:</b>' +
+        '<span class="key">' + key + '</span>' +
+        '<p style="margin-top:10px">📋 Uni Delta Executor\'ning key oynasiga joylashtiring</p>';
+    } else {
+      res.innerHTML = '<span class="err">❌ Kalit olinmadi: ' +
+        (data.error || data.message || JSON.stringify(data)) + '</span>';
+    }
+  } catch (e) {
+    res.innerHTML = '<span class="err">❌ Xatolik: ' + e.message + '</span>';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Bypass qilish';
+}
+</script>
+</body>
+</html>
